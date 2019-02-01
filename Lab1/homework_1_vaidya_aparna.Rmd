@@ -11,7 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### R Markdown
 My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
 
 
@@ -27,7 +26,7 @@ code, name, latitude, longitude, country, countryRegion, population, regionCode,
 
 
 ```{r}
-glimpse("WorldCities")
+glimpse(WorldCities)
 WorldCities <- head(WorldCities,200) #200 rows
 ```
 
@@ -41,3 +40,24 @@ unique(country_col)
 region_col <- WorldCities$region
 unique(region_col)
 ```
+
+### Question 3
+```{r}
+WorldCities %>% select(country) %>% unique()
+```
+
+```{r}
+WorldCities %>% ggplot(aes(x = population)) + 
+  geom_histogram()
+```
+
+### Question 4
+```{r}
+WorldCities %>% ggplot(aes(x = population)) +
+  geom_histogram() + 
+   xlab('Population') + 
+    ylab('Total Count') +
+     ggtitle('My Title') +
+       theme_bw()
+```
+
