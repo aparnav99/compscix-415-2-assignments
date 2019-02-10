@@ -1,0 +1,252 @@
+---
+title: "COMPSCIX 415.2 Homework 1"
+author: "Aparna Vaidya"
+date: "2/9/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
+
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+### 3.2.4 Exercises
+
+__1.Run ggplot(data = mpg). What do you see?__ 
+
+It displays a blank canvas since we did not select any geom function
+
+```{r}
+ggplot(data = mpg)
+```
+
+__2.How many rows are in mpg? How many columns?__
+ 
+There are 234 rows and 11 variables in mpg.
+
+
+__3.What does the drv variable describe? Read the help for ?mpg to find out.__
+
+drv variable is a categorical variable with values  f=front-wheel drive, r=rear wheel drive, 4=4wd
+
+
+__4.Make a scatterplot of hwy vs cyl.__
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = hwy, y = cyl))
+```
+
+
+__5.What happens if you make a scatterplot of class vs drv? Why is the plot not useful.__
+
+Both are categorical variables so the points are plotted in the same position overlapping with each other. This plot does not provide any indication about the relation between two variables.  
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = class, y = drv))
+```
+
+
+### 3.3.1 Exercises
+__1. What’s gone wrong with this code? Why are the points not blue?__
+
+Points are not blue because color is mapped inside 'aes', it should be outside.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+```
+
+__2. Which variables in mpg are categorical? Which variables are continuous? (Hint: type ?mpg to read the documentation for the dataset). How can you see this information when you run mpg?__
+
+Categorical variables are of type chr and continuous variabes ate int or double.
+
+Categorical variables are manufacturer, model, trans, drv, fl, class,
+Continuous variables are displ, year, cyl, cty, hwy.
+
+```{r}
+glimpse(mpg)
+```
+
+
+
+__3. Map a continuous variable to color, size, and shape. How do these aesthetics behave differently for categorical vs. continuous variables?__
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, color = displ))
+```
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, size = drv))
+```
+
+Using 'color' for discrete variable displays different colors whereas for continuous variable it displays different shades of same color. 
+Using 'size' for discrete variables is not recommended but it maps different sizess to different values of variable.
+
+'shape' can be used for a discrete varible but not for continuous variable.
+
+__4. What happens if you map the same variable to multiple aesthetics?__
+
+It works but makes the graph less intuitive.
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, color = hwy, size = hwy))
+```
+
+
+__5. What does the stroke aesthetic do? What shapes does it work with? (Hint: use ?geom_point)__
+
+Stroke controls the border width of shape aestetics.
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, fill = displ), shape = 21, stroke = 3)
+```
+
+__6. What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)? Note, you’ll also need to specify x and y.__
+
+It converts the expression into True and False categoris maps accordingly.
+
+```{r}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5))
+```
+
+
+### 3.5.1 Exercises
+
+__4. Take the first faceted plot in this section:__
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+
+
+__What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?__
+
+Faceting helps to visualize the relationship between x and y variables for a specific value being faceted instead of it being all in one plot as with the color aestetic. Disadvantage of faceting is that it makes harder to guage the overall relationship between variables. Disadvantage of color aesthetic is it may not work too well if the number of values for the discrete variable is too large as the points will start to overlap with each other.
+
+__5. Read ?facet_wrap. What does nrow do? What does ncol do? What other options control the layout of the individual panels? Why doesn’t facet_grid() have nrow and ncol arguments?__
+
+```{r}
+?facet_wrap
+```
+
+facet_wrap converts a one dimensional sequence of panels into 2 dimensions. nrow decides number of rows amd ncol decides number of columns. Other options that control the layout of individual panels are switch and strip.position.
+
+
+### 3.6.1 Exercises
+
+__1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?__
+
+* line chart: geom_line()
+* boxplot: geom_boxplot()
+* histogram: geom_histogram()
+* area chart: geom_area()
+
+
+__2. Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.__
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+__3. What does show.legend = FALSE do? What happens if you remove it? Why do you think I used it earlier in the chapter?__
+
+Setting show.legend = FALSE drops the legend from the plot. The default is to show the legend so if we remove this code, legend will show on the plot. It was used earlier in the chapter to save space while displaying 3 plots side by side.
+
+ 
+__4. What does the se argument to geom_smooth() do?__
+
+se (standard error) arguments decide whether or not to display confidence interval around smooth line.
+
+
+__5. Will these two graphs look different? Why/why not?__
+
+These graphs will look exactly the same as they both use same data and aesthetic. The first code used global variables whereas second sets it in each geom.
+
+
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+```
+
+
+__6. Recreate the R code necessary to generate the following graphs.__
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, group = drv)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth(aes(color = drv))
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth(aes())
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth(aes(linetype = drv))
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) 
+```
+
+
+### 3.7.1 Exercises
+
+__2. What does geom_col() do? How is it different to geom_bar()?__
+
+geom_col represents values in the data. It uses stat_identity(). geom_bar makes height of the bar proportional to the number of values in each group. It uses stat_count() by default.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+ggplot(data = diamonds) + 
+  geom_col(mapping = aes(x = cut, y = price))
+```
+
+
+### Answer these questions:
+
+__Look at the data graphics at the following link: What is a Data Scientist. Please briefly critique the designer’s choices. What works? What doesn’t work? What would you have done differently?__
+
+This graphic represents the trends, opportunities and challenges in Data Science quite well. The color and plot choices are intuitive and succeed in engaging users' attention. Especially like the fact that each section of information fits in one screen without having to scroll.
