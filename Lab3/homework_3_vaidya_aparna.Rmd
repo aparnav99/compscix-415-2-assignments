@@ -9,22 +9,207 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
 ```
 
-## Including Plots
+### 3.8.1 Exercises
 
-You can also embed plots, for example:
+__1. What is the problem with this plot? How could you improve it?__
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+The problem is overplotting. The values of cty and hwy are rounded and many points overlap with each other making it difficult to see where the mass of the data is. This problem can be corrected by adding a small amount of random noise using position="jitter".
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point(position="jitter")
+```
+
+__2. What parameters to geom_jitter() control the amount of jittering?__
+
+width and height
+
+__3. Compare and contrast geom_jitter() with geom_count().__
+geom_jitter adds a small amount of random noise to each observation which minimizes overlapping.
+geom_count counts the number of observations at each location then maps the count to point area.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_count()
+```
+
+__4. What’s the default position adjustment for geom_boxplot()? Create a visualisation of the mpg dataset that demonstrates it.__
+
+Default position adjustment for geom_boxplot() is dodge2.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+```
+
+### 3.9.1 Exercises
+
+__2.What does labs() do? Read the documentation.__
+
+labs() is used to modify axis, legend and plot labels. 
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, fill = drv)) + 
+  geom_bar() +
+    labs(x = "Vehicle Class ", y = "Total Count", title = "Total Count of Vehicle Class by Drive")
+```
+
+
+__4. What does the plot below tell you about the relationship between city and highway mpg? Why is coord_fixed() important? What does geom_abline() do?__
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline() +
+  coord_fixed()
+```
+
+City and Highway have a positivie linear relationship. The cars that have a higher mileage in the city also have higher mileage on the highway. Highway mileage varies in a small range for a particular mileage in the city.
+
+coord_fixed() is omportant to maintain a specified fixed aspect ration between the units of x and y axis.
+
+geom_abline() adds a diagonal reference line specified by slope and intercept.
+
+
+### 4.4 Practice
+
+__1. Why does this code not work?__
+__#> Error in eval(expr, envir, enclos): object 'my_varıable' not found__
+__Look carefully! (This may seem like an exercise in pointlessness, but training your brain to notice even the tiniest difference will pay off when programming.)__
+
+There is a typo in my_varıable. Change it to my_variable
+
+```{r}
+my_variable <- 10
+my_variable
+```
+
+
+__2. Tweak each of the following R commands so that they run correctly:__
+
+```{r}
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+```
+
+### 5.2.4 Exercises
+
+```{r}
+library(nycflights13)
+```
+__1. Find all flights that__
+
+__1. Had an arrival delay of two or more hours__
+
+```{r}
+filter(flights, arr_delay > 120) %>% select(flight, carrier, arr_delay)
+```
+
+
+__2. Flew to Houston (IAH or HOU)__
+
+```{r}
+filter(flights, dest %in% c("IAH", "HOU")) %>% select(flight, carrier, dest)
+```
+
+__3. Were operated by United, American, or Delta__
+
+```{r}
+filter(flights, carrier %in% c("UA", "AA", "DL")) %>% select(flight, carrier)
+```
+
+__4. Departed in summer (July, August, and September)__
+
+```{r}
+filter(flights, month %in% c(7, 8, 9)) %>% select(flight, carrier, month)
+```
+
+__5. Arrived more than two hours late, but didn’t leave late__
+
+```{r}
+filter(flights, arr_delay >  120 & dep_delay <= 0) %>% select(flight, carrier, arr_delay, dep_delay)
+```
+
+__6. Were delayed by at least an hour, but made up over 30 minutes in flight__
+
+```{r}
+filter(flights, dep_delay >= 60 & arr_delay <=  (dep_delay - 30)) %>% select(flight, carrier, dep_delay, arr_delay)
+```
+
+__7. Departed between midnight and 6am (inclusive)__
+
+```{r}
+filter(flights, dep_time == 24 | (dep_time >= 0 & dep_time <=6)) %>% select(flight, carrier, dep_time)
+```
+
+__3. How many flights have a missing dep_time? What other variables are missing? What might these rows represent?__
+
+```{r}
+filter(flights, is.na(dep_time)) %>% select(flight, carrier, dep_time)
+```
+
+```{r}
+summary(flights)
+```
+8255 flights have missing dep_time.
+8255 flights have missing dep_delay.
+8713 flights have missing arr_time.
+9430 flights have missing arr_delay.
+9430 flights have missing air_time.
+
+__4. Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)__
+
+NA ^ 0 is 1 so it is not NA.
+NA | TRUE is TRUE because OR operator will return True if one operand is true.
+NA & FALSE is FALSE because AND operator will return False if one operand is False. 
+NA * 0 is 0.
+General rule will be if both operands are NA, then the result will be NA.
+
+
+### 5.4.1 Exercises
+
+__1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.__
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+```
+
+```{r}
+select(flights, dep_time:arr_delay, -sched_dep_time, -sched_arr_time)
+```
+
+
+```{r}
+flights %>% select(contains("dep_"), contains("arr_"), -contains("sched"))
+```
+
+There are many more combinations/variations of above three commands.
+
+__3. What does the one_of() function do? Why might it be helpful in conjunction with this vector?__
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+```
+
+one_of() returns variables in character vector. It can be used as a reusable vector of column names if multiple queries need to select same columns.
+
+```{r}
+flights %>% select(one_of(vars))
+```
