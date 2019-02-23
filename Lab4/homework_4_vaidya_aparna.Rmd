@@ -1,0 +1,19 @@
+---
+title: "COMPSCIX 415.2 Homework 4"
+author: "Aparna Vaidya"
+date: "2/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
+
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
