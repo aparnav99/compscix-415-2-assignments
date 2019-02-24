@@ -475,6 +475,31 @@ preg %&gt;%
 <p><strong>2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?</strong></p>
 <p>Remove argument removes the input columns from the resulting dataframe and creates a new column. Setting it to FALSE will retain the old columns and create new columns in resulting datarame.</p>
 </div>
+<div id="import-and-export-data" class="section level3">
+<h3>Import and Export Data</h3>
+<pre class="r"><code>baby_names &lt;- read.delim(&quot;/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.txt&quot;, sep = &quot;|&quot;)
+
+glimpse(baby_names)</code></pre>
+<pre><code>## Observations: 30,000
+## Variables: 5
+## $ year &lt;int&gt; 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880,…
+## $ sex  &lt;fct&gt; F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,…
+## $ name &lt;fct&gt; Mary, Anna, Emma, Elizabeth, Minnie, Margaret, Ida, Alice, …
+## $ n    &lt;int&gt; 7065, 2604, 2003, 1939, 1746, 1578, 1472, 1414, 1320, 1288,…
+## $ prop &lt;dbl&gt; 0.072384329, 0.026679234, 0.020521700, 0.019865989, 0.01788…</code></pre>
+<pre class="r"><code>write_csv(baby_names, &quot;/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.csv&quot;)
+
+baby_names_csv &lt;- read.csv(&quot;/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.csv&quot;)
+
+glimpse(baby_names_csv)</code></pre>
+<pre><code>## Observations: 30,000
+## Variables: 5
+## $ year &lt;int&gt; 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880,…
+## $ sex  &lt;fct&gt; F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,…
+## $ name &lt;fct&gt; Mary, Anna, Emma, Elizabeth, Minnie, Margaret, Ida, Alice, …
+## $ n    &lt;int&gt; 7065, 2604, 2003, 1939, 1746, 1578, 1472, 1414, 1320, 1288,…
+## $ prop &lt;dbl&gt; 0.072384329, 0.026679234, 0.020521700, 0.019865989, 0.01788…</code></pre>
+</div>
 
 
 

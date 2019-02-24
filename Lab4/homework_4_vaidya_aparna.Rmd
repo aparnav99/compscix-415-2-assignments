@@ -208,3 +208,20 @@ tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
 __2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?__
 
 Remove argument removes the input columns from the resulting dataframe and creates a new column. Setting it to FALSE will retain the old columns and create new columns in resulting datarame.
+
+
+### Import and Export Data
+
+```{r}
+baby_names <- read.delim("/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.txt", sep = "|")
+
+glimpse(baby_names)
+
+write_csv(baby_names, "/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.csv")
+
+baby_names_csv <- read.csv("/Users/aparnavaidya/Downloads/UCB-Intro To Data Science/compscix-415-2-assignments/Lab4/baby_names.csv")
+
+glimpse(baby_names_csv)
+
+```
+
