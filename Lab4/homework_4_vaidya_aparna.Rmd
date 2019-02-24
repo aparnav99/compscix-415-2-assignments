@@ -3,6 +3,8 @@ title: "COMPSCIX 415.2 Homework 4"
 author: "Aparna Vaidya"
 date: "2/22/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -15,5 +17,194 @@ My Github repository for my assignments can be found at this URL <https://github
 
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(nycflights13)
 ```
 
+###5.6.7 Exercises
+
+__2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).__
+
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+```
+
+```{r}
+not_cancelled %>% count(dest)
+
+not_cancelled %>% group_by(dest) %>% summarize(n = n())
+```
+
+```{r}
+not_cancelled %>% count(tailnum, wt = distance)
+
+not_cancelled %>% group_by(tailnum) %>% summarize(wt = sum(distance))
+```
+
+
+__4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?__
+
+There seems to be a postive relationship between average delay and number of flights cancelled. Greater the delay, higher the number of flights cancelled.
+
+```{r}
+flights %>%
+  group_by(day) %>%
+  summarise(cancelled = mean(is.na(dep_delay)),
+            mean_dep = mean(dep_delay, na.rm = T),
+            mean_arr = mean(arr_delay, na.rm = T)) %>%
+  ggplot(aes(y = cancelled)) +
+  geom_point(aes(x = mean_dep), colour = "red") +
+  geom_point(aes(x = mean_arr), colour = "blue") +
+  labs(x = "Avg delay per day", y = "Number of cancelled flights per day")
+```
+
+
+__6. What does the sort argument to count() do. When might you use it?__
+sort argument is used to sort the column by count.
+
+```{r}
+flights %>%
+  count(carrier, sort = TRUE)
+```
+
+
+### 10.5 Exercises
+
+__1.How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).__
+
+Tibble shows column types along with column names. Also it displays first 10 rows.
+
+```{r}
+mtcars
+
+mtcars %>% as.tibble()
+```
+
+
+__2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?__
+
+Data frame returns results even when there is a partial match on column names which can be misleading. Tibble will try an exact match on column names.
+
+Data frames returns a vector if only one column is passed as input and it retuns a data frame if multiple columns are passed. This makes it difficult to handle results. Tibble always retuns a tibble as resulting type.
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+
+
+tb <- df %>% as.tibble()
+
+tb$x
+tb[, "xyz"]
+tb[, c("abc", "xyz")]
+
+```
+
+
+__3.If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?__
+
+```{r}
+var <- "xyz"
+df[[var]]
+
+
+```
+
+
+__6. What option controls how many additional column names are printed at the footer of a tibble?__
+
+tibble.max_extra_cols
+
+
+###12.3.3 Exercises
+
+__2. Why does this code fail?__
+__table4a %>% __
+__  gather(1999, 2000, key = "year", value = "cases")__
+__#> Error in inds_combine(.vars, ind_list): Position must be between 0 and n__
+
+Because 1999 and 2000 are non-syntactic names(they don't start with a letter). They need to be enclosed in backticks.
+
+```{r}
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+
+__3. Why does spreading this tibble fail? How could you add a new column to fix the problem?__
+
+__people <- tribble(__
+__  ~name,             ~key,    ~value,__
+__  #-----------------|--------|------__
+__  "Phillip Woods",   "age",       45,__
+__  "Phillip Woods",   "height",   186,__
+__  "Phillip Woods",   "age",       50,__
+__ "Jessica Cordero", "age",       37,__
+__  "Jessica Cordero", "height",   156__
+__)__
+
+Spreading this tibble will fail as the 'age' key is not unique per observation. Using distinct for rows will help.
+
+```{r}
+people <- tribble(
+  ~name,             ~key,    ~value,
+  #-----------------|--------|------
+  "Phillip Woods",   "age",       45,
+  "Phillip Woods",   "height",   186,
+  "Phillip Woods",   "age",       50,
+  "Jessica Cordero", "age",       37,
+  "Jessica Cordero", "height",   156
+)
+
+people %>% distinct(name, key, .keep_all = TRUE) %>% spread(key, value)
+
+```
+
+
+__4. Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?__
+
+__preg <- tribble(__
+__  ~pregnant, ~male, ~female,__
+__  "yes",     NA,    10,__
+__  "no",      20,    12__
+__)__
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+
+preg %>% 
+  gather(`male`, `female`, key = "gender", value = "count", na.rm = TRUE)
+```
+
+
+###12.4.3 Exercises
+
+__1. What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.__
+
+extra argument specifies what to do if there are extra values.
+fill argument specifies what to do if there are missing values.
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "merge")
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "drop")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "left")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "right")
+```
+
+
+__2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?__
+
+Remove argument removes the input columns from the resulting dataframe and creates a new column. Setting it to FALSE will retain the old columns and create new columns in resulting datarame.
