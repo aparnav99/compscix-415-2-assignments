@@ -2,29 +2,239 @@
 title: "COMPSCIX 415.2 Homework 5/Midterm"
 author: "Aparna Vaidya"
 date: "2/26/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+### The tidyverse packages (3 points)
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
 ```
 
-## Including Plots
+By now you’ve used at least five different packages from the tidyverse for plotting, data munging, reshaping data, importing/exporting data, and using tibbles (the tibble package is used for this without you even realizing it’s there).
 
-You can also embed plots, for example:
+__1. Can you name which package is associated with each task below?__
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+* Plotting - ggplot2
+* Data munging/wrangling - dplyr
+* Reshaping (speading and gathering) data - tidyr
+* Importing/exporting data - readr
+
+__2. Now can you name two functions that you’ve used from each package that you listed above for these tasks?__
+
+* Plotting - ggplot, geom_*** (e.g. geom_bar)
+* Data munging/wrangling - select, filter
+* Reshaping data - spread, gather
+* Importing/exporting data - read.delim, write.csv
+
+### R Basics (1.5 points)
+
+__1. Fix this code with the fewest number of changes possible so it works:__
+
+Code works by removing '!' at the end of variable name.
+
+```{r}
+My_data.name___is.too00ooLong <- c( 1 , 2   , 3 )
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+__2. Fix this code so it works:__
+
+Code works by changing 'C' to 'c' for vector and by adding a single quote to elclose 'it'.
+
+```{r}
+my_string <- c('has', 'an', 'error', 'in', 'it')
+```
+
+__3. Look at the code below and comment on what happened to the values in the vector.__
+
+All 'int' values in the vector got converted to 'char'.
+
+```{r}
+my_vector <- c(1, 2, '3', '4', 5)
+my_vector
+```
+
+### Data import/export (3 points)
+
+__1. Download the rail_trail.txt file from Canvas (in the Midterm Exam section) and successfully import it into R. Prove that it was imported successfully by including your import code and taking a glimpse of the result.__
+
+```{r}
+rail_trail <- read.delim("rail_trail.txt", sep = "|")
+glimpse(rail_trail)
+```
+
+__2. Export the file into a comma-separated file and name it “rail_trail.csv”. Make sure you define the path correctly so that you know where it gets saved. Then reload the file. Include your export and import code and take another glimpse.__
+
+```{r}
+write.csv(rail_trail, "rail_trail.csv")
+
+rail_trail_csv = read.csv("rail_trail.csv")
+
+glimpse(rail_trail_csv)
+```
+
+### Visualization (6 points)
+
+__1. Critique this graphic: give only three examples of what is wrong with this graphic. Be concise.__
+
+* This graph mixes age group and gender categories in one scale.
+* Addition of percentage between 'yes/no', age or gender categories do not add up to be 100%.
+* Choice of visualization/color scheme not very intuitive.
+
+__2. Reproduce this graphic using the diamonds data set.__
+
+```{r message = FALSE}
+
+ggplot(data = diamonds, mapping = aes(x = cut, y = carat, fill = color)) + geom_boxplot(position = "identity") + coord_flip() + labs(x = "CUT OF DIAMOND", y = "CARAT OF DIAMOND")
+```
+
+__3. The previous graphic is not very useful. We can make it much more useful by changing one thing about it. Make the change and plot it again.__
+
+Change the position to 'dodge2' so the bars are not plotted on top of each other.
+
+```{r message = FALSE}
+
+ggplot(data = diamonds, mapping = aes(x = cut, y = carat, fill = color)) + geom_boxplot(position = "dodge2") + coord_flip() + labs(x = "CUT OF DIAMOND", y = "CARAT OF DIAMOND")
+
+```
+
+### Data munging and wrangling (6 points)
+
+__1.Is this data “tidy”? If yes, leave it alone and go to the next problem. If no, make it tidy. Note: this data set is called table2 and is available in the tidyverse package. It should be ready for you to use after you’ve loaded the tidyverse package.__
+
+Yes. This data is tidy because of following reasons - 
+
+* Each column is a variable
+* Each row is an observation
+* Each cell is a value
+
+__2. Create a new column in the diamonds data set called price_per_carat that shows the price of each diamond per carat (hint: divide). Only show me the code, not the output.__
+
+```{r results = "hide"}
+mutate(diamonds, price_per_carat = price/carat)
+```
+
+__3. For each cut of diamond in the diamonds data set, how many diamonds, and what proportion, have a price > 10000 and a carat < 1.5? There are several ways to get to an answer, but your solution must use the data wrangling verbs from the tidyverse in order to get credit.__
+
+```{r}
+diamonds %>% group_by(cut) %>% 
+         filter(price > 10000, carat < 1.5) %>% 
+         summarise(count = n()) %>%
+         mutate(proportion = prop.table(count))         
+```
+
+* __Do the results make sense? Why?__
+
+The results make sense since there are higher proprtion of diamonds from premium and ideal category since those tend to be high price diamonds.
+
+* __Do we need to be wary of any of these numbers? Why?__
+
+Higher weight may not always mean better quality so we need to be careful not to pay higher price only based on weight without considering the quality.
+
+### EDA (6 points)
+
+__Take a look at the txhousing data set that is included with the ggplot2 package and answer these questions:__
+
+```{r}
+glimpse(txhousing)
+```
+
+__1. During what time period is this data from?__
+
+This data is from 2000-2015 timeframe.
+
+```{r}
+distinct(txhousing, year)
+```
+
+__2. How many cities are represented?__
+
+46 cities are represented
+
+```{r}
+count(distinct(txhousing, city, na.rm = TRUE))
+```
+
+__3. Which city, month and year had the highest number of sales?__
+
+* Houston had highest number of sales in July of 2015.
+* City with highest number of sales of all times is Houston.
+* Month with highest number of sales of all times is July 2015.
+* Year with highest number of sales of all times is 2006
+
+
+```{r}
+txhousing %>% group_by(city, month, year) %>% summarise(sales = sum(sales)) %>% arrange(desc(sales)) 
+
+txhousing %>% group_by(city) %>% summarise(sales = sum(sales, na.rm = TRUE)) %>% arrange(desc(sales))
+
+txhousing %>% group_by(year, month) %>% summarise(sales = sum(sales, na.rm = TRUE)) %>% arrange(desc(sales))
+
+txhousing %>% group_by(year) %>% summarise(sales = sum(sales, na.rm = TRUE)) %>% arrange(desc(sales))
+
+```
+
+__4. What kind of relationship do you think exists between the number of listings and the number of sales? Check your assumption and show your work.__
+
+There seems to be a postitive linear relationship between number of listings and number of sales. Higher the number of listings higher the sales.
+
+```{r message = FALSE, warning = FALSE}
+ggplot(data = txhousing, mapping = aes(x = listings, y = sales)) +
+  geom_point() + geom_smooth() + geom_jitter()
+```
+
+__5. What proportion of sales is missing for each city?__
+
+20 out of 46 cities have some missing sales. Proportion varies from 0.1% to 20%
+
+```{r}
+txhousing %>% group_by(city) %>% 
+         filter(is.na(sales)) %>% 
+         summarise(count = n()) %>%
+         mutate(proportion = prop.table(count))  %>%
+         arrange(desc(proportion))
+```
+
+__6. Looking at only the cities and months with greater than 500 sales:__
+
+```{r}
+txhousing %>% group_by(city, month) %>% 
+         filter(sales > 500)
+```
+
+* __Are the distributions of the median sales price (column name median), when grouped by city, different? The same? Show your work.__
+
+The distributions of median sales price are about the same in both cases.
+
+```{r warning = FALSE, message = FALSE}
+ggplot(data = txhousing, mapping = aes(x = median)) + geom_histogram()
+```
+
+```{r warning = FALSE, message = FALSE}
+ggplot(data = txhousing, mapping = aes(x = median, fill = city)) + geom_histogram()
+
+```
+
+* __Any cities that stand out that you’d want to investigate further?__
+
+Would like to look at different cities in Texas (Austin, Dallas, San Antonio) to see what might be causing such a big difference in the sales in the same state. Would also like to look at Bay Area to check why there is a steep slope from median to the tail end.
+
+
+* __Why might we want to filter out all cities and months with sales less than 500?__
+
+This will help reduce the noise and help concentrate the analysis on important sales. Cities less than 500 sales are not adding any significant value to the revenue.
+
+```{r warning = FALSE, message = FALSE}
+txhousing %>% filter(sales > 500) %>%
+ggplot(mapping = aes(x = median, fill = city)) + geom_histogram()
+
+```
