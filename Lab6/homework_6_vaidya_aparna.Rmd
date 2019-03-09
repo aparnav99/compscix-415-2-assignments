@@ -1,0 +1,11 @@
+---
+title: "COMPSCIX 415.2 Homework 6"
+author: "Aparna Vaidya"
+date: "3/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
