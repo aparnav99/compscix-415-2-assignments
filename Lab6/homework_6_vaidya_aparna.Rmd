@@ -9,3 +9,182 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r message = FALSE}
+library(mosaicData)
+library(tidyverse)
+
+glimpse(Whickham)
+
+```
+
+### Exercise 1
+
+__1. What variables are in this data set?__
+
+There are 3 variables in this dataset. outcome, smoker and age
+
+__2. How many observations are there and what does each represent?__
+
+There are 1,314 observations and each represents age of the person, his smoking habits and whether he is alive or dead.
+
+__3. Create a table (use the R code below as a guide) and a visualization of the relationship between smoking status and outcome, ignoring age. What do you see? Does it make sense?__
+
+From the table and graph, we can see that in non-smoking category more people are alive than dead which makes sense. But same trend is shown in smoking category - more smokers are alive than dead whuich does not make sense.
+
+```{r}
+Whickham %>% count( smoker , outcome ) 
+
+```
+
+```{r}
+Whickham %>% 
+  ggplot(aes(x = smoker, fill = outcome)) + geom_bar(position = "dodge2") 
+```
+
+__4. Recode the age variable into an ordered factor with three categories: age <= 44, age > 44 & age <= 64, and age > 64. Now, recreate visualization from above, but facet on your new age factor. What do you see? Does it make sense?__
+
+This makes sense as we can see that smoking has an impact on life as someone ages. In general, non-smokers live a longer life thn smokers.
+
+```{r}
+age_cat <- case_when(Whickham$age < 44 ~ '<44',
+                   Whickham$age >= 44 & Whickham$age < 64 ~ '44<=age<64',
+                   Whickham$age >= 64 ~ '>64')
+
+age_fct <- factor(age_cat)
+
+age_fct <- factor(age_fct, ordered = TRUE)
+
+age_fct <- fct_relevel(age_fct, '<44', '44<=age<64', '>64')
+
+Whickham %>% 
+  ggplot(aes(x = smoker, fill = outcome)) + geom_bar(position = "dodge2") +
+          facet_wrap(~ factor(age_fct))
+```
+
+
+### Exercise 2
+
+__1. Generate a random sample of size n = 10000 from a gamma(1,2) distribution and plot a histogram or density curve. Use the code below to help you get your sample.__
+
+```{r}
+n <- 10000
+
+# look at ?rgamma to read about this function
+gamma_samp <- tibble(x = rgamma(n, shape = 1, scale = 2))
+
+ggplot() + geom_histogram(aes(x = gamma_samp$x))
+```
+
+__2. What is the mean and standard deviation of your sample? They should both be close to 2 because for a gamma distribution:__
+
+Mean = 1.981093
+Std Dev = 2.000626
+
+```{r}
+mean_samp <- gamma_samp %>% .[['x']] %>% mean()
+
+stddev_samp <- gamma_samp %>% .[['x']] %>% sd()
+
+```
+
+__3. Pretend the distribution of our population of data looks like the plot above. Now take a sample of size n = 30 from a Gamma(1,2) distribution, plot the histogram or density curve, and calculate the mean and standard deviation.__
+
+Mean = 1.375688
+
+Std Dev = 1.297308
+
+```{r}
+samp_new = tibble(y = rgamma(30, shape = 1, scale = 2))
+
+mean_samp_new <- samp_new %>% .[['y']] %>% mean()
+
+stddev_samp_new <- samp_new %>% .[['y']] %>% sd()
+
+ggplot() + geom_histogram(aes(x = samp_new$y))
+
+```
+
+__4. Take a sample of size n = 30, again from the Gamma(1,2) distribution, calculate the mean, and assign it to a vector named mean_samp. Repeat this 10000 times!!!! The code below might help.__
+
+```{r}
+# create a vector with 10000 NAs
+mean_samp <- rep(NA, 10000)
+
+# start a loop
+for(i in 1:10000) {
+  g_samp <- rgamma(30, shape = 1, scale = 2)
+  mean_samp[i] <- mean(g_samp)
+}
+# Convert vector to a tibble
+mean_samp_tb <- tibble(mean_samp)
+```
+
+__5. Make a histogram of your collection of means from above (mean_samp).__
+
+```{r}
+
+ggplot() + geom_histogram(aes(x = mean_samp_tb$mean_samp))
+
+```
+
+__6. Calculate the mean and standard deviation of all of your sample means.__
+
+````{r}
+s_samp_m <- rep(NA, 10000)
+
+for(i in 1:10000) {
+  s_samp_m[i] <- mean(mean_samp)
+}
+# Convert vector to a tibble
+s_samp_m_tb <- tibble(s_samp_m)
+
+
+s_samp_sd <- rep(NA, 10000)
+
+for(i in 1:10000) {
+  s_samp_sd[i] <- sd(mean_samp)
+}
+# Convert vector to a tibble
+s_samp_sd_tb <- tibble(s_samp_sd)
+```
+
+__7.Did anything surprise you about your answers to #6?__
+
+Means and Std Dev are quite similar and distribution of sample means is normal even when the original distribution is not normal.
+
+__8. According to the Central Limit Theorem, the mean of your sampling distribution should be very close to 2, and the standard deviation of your sampling distribution should be close to σn‾√=230‾‾‾√=0.365. Repeat #4-#6, but now with a sample of size n = 300 instead. Do your results match up well with the theorem?__
+
+The results match with Central Limit Theorem. Mean is close to 2 and Std Dev is close to 0.11
+
+```{r}
+# create a vector with 10000 NAs
+mean_samp1 <- rep(NA, 10000)
+
+# start a loop
+for(i in 1:10000) {
+  g_samp1 <- rgamma(300, shape = 1, scale = 2)
+  mean_samp1[i] <- mean(g_samp1)
+}
+# Convert vector to a tibble
+mean_samp1_tb <- tibble(mean_samp)
+
+ggplot() + geom_histogram(aes(x = mean_samp1_tb$mean_samp))
+
+
+s_samp1_m <- rep(NA, 10000)
+
+for(i in 1:10000) {
+  s_samp1_m[i] <- mean(mean_samp1)
+}
+# Convert vector to a tibble
+s_samp1_m_tb <- tibble(s_samp1_m)
+
+
+s_samp1_sd <- rep(NA, 10000)
+
+for(i in 1:10000) {
+  s_samp1_sd[i] <- sd(mean_samp1)
+}
+# Convert vector to a tibble
+s_samp1_sd_tb <- tibble(s_samp1_sd)
+```
