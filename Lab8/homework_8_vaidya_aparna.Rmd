@@ -1,0 +1,38 @@
+---
+title: "COMPSCIX 415.2 Homework 8"
+author: "Aparna Vaidya"
+date: "3/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+My Github repository for my assignments can be found at this URL <https://github.com/aparnav99/compscix-415-2-assignments.git>
+
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(jsonlite)
+library(leaflet)
+
+```
+
+## Map function
+
+
+```{r}
+
+map_it <- function(city) {
+  url <- paste0("https://api.jcdecaux.com/vls/v1/stations?contract=",city,"&apiKey=ae7a484dd29e1515f577600a9a8e806dcd84be00")
+  df_api <- fromJSON(url, flatten = TRUE)
+
+m <- leaflet(data = df_api[1:nrow(df_api),]) %>% addTiles() %>%
+  addMarkers(lng = ~position.lng, lat = ~position.lat, label = ~as.character(available_bikes))
+
+return(m)
+}
+
+map_it("Dublin")
+```
