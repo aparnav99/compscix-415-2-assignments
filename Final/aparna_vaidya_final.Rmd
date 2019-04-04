@@ -1,0 +1,199 @@
+---
+title: "COMPSCIX 415.2 Homework 9/Final"
+author: "Aparna Vaidya"
+date: "3/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(broom)
+```
+
+### Exercise 1 - Sampling Distributions, Functions and For Loops (10 points)
+Recall that the distribution of the sample mean is approximately a Normal distribution, and that the standard error is σ/√n
+. This holds true regardless of the distribution of our population.
+
+For this problem, assume that the number of miles that a particular car can run before its battery wears out is exponentially distributed with an average of 10,000 miles. The exponential distribution looks like this:
+
+The exponential distribution has a rate parameter that controls how quickly the distribution decays and defines what the mean and standard deviation will be. In our case the rate = 1/10000, the mean = 10000 and the standard deviation = 10000. You can sample from this exponential distribution in R using this code:
+
+
+__STEP 1__
+
+Write an R function that does the following:
+
+Takes a sample of size samp_size from this exponential distribution (samp_size is an input parameter for the function)
+Calculates the mean of that sample
+Calculates the standard deviation of that sample
+Returns the calculated mean and standard deviation as a list
+
+
+```{r}
+samp_fun <- function(samp_size, samp_rate) {
+  
+  samp <- rexp(n = samp_size, rate = samp_rate)
+  
+  samp_avg = mean(samp)
+  
+  samp_std_dev = sd(samp)
+  
+  stats <- list(samp_avg = samp_avg, samp_std_dev = samp_std_dev)
+  return(stats)
+  
+}
+```
+
+__STEP 2__
+
+Then write a loop that does this:
+
+Runs the above function 1000 times, with samp_size = 50 and samp_rate = 1/10000
+Saves all of the sample means in a vector called sample_means, and all of the sample standard deviations in a vector called sample_sds
+
+
+```{r}
+sample_means <- c()
+sample_sds <- c()
+  
+for(i in 1:1000) {
+
+  stats <- samp_fun(50, 1/10000)
+  sample_means[i] <- stats$samp_avg
+  sample_sds[i] <- stats$samp_std_dev
+  
+}
+
+```
+
+__STEP 3__
+
+Then
+
+plot your sample means as a histogram
+output the standard deviation of your sample means
+calculate the theoretical standard error (σ=10000, n = sample size)
+calculate the mean of the sample standard deviations and use this to calculate the empirical standard error
+
+
+```{r}
+df <- as_data_frame(sample_means)
+df %>% ggplot() +
+  geom_histogram(aes(x = value)) +
+  theme_bw()
+
+samp_sd <- sd(sample_means)
+print(paste0("Standard deviation of sample means is: ", samp_sd))
+
+se_th = 10000/sqrt(50)
+
+samp_mean <- mean(sample_sds)
+
+se_emp <- samp_mean/sqrt(50)
+
+```
+
+__STEP 4__
+
+Repeat STEP 2 and STEP 3 using a sample size of 5000.
+
+```{r}
+sample_means <- c()
+sample_sds <- c()
+  
+for(i in 1:1000) {
+
+  stats <- samp_fun(5000, 1/10000)
+  sample_means[i] <- stats$samp_avg
+  sample_sds[i] <- stats$samp_std_dev
+  
+}
+
+df <- as_data_frame(sample_means)
+df %>% ggplot() +
+  geom_histogram(aes(x = value)) +
+  theme_bw()
+
+samp_sd <- sd(sample_means)
+print(paste0("Standard deviation of sample means is: ", samp_sd))
+
+se_th = 10000/sqrt(50)
+
+samp_mean <- mean(sample_sds)
+
+se_emp <- samp_mean/sqrt(50)
+```
+
+
+### Exercise 2 - Linear Regression (5 points)
+
+For this exercise we will return to the House Prices prediction dataset that we used for HW 7. You should have already downloaded the train.csv dataset before, but if you didn’t you can download it from Canvas in this week’s module.
+
+Load the train.csv dataset into R and fit a regression model with:
+
+y = SalePrice
+Features: LotArea, OverallQual, and ExterQual
+Answer these questions:
+
+Use the broom package to output the coefficients and the R-squared
+Interpret the coefficient on LotArea
+Interpret the coefficient on ExterQualGd
+Compare this model to the model we fit in HW 7 with GrLivArea, OverallQual, Neighborhood. Which is the better fitting model?
+
+```{r}
+train = read.csv("train.csv")
+
+(train_lm <- lm(formula = SalePrice ~ LotArea + OverallQual + ExterQual, data = train))
+
+glance(train_lm)
+
+```
+
+For every unit increase in Lot Area, Sale Price increase by 1.453 units. If Lot Area is 0, Sale Orice would be 40763.573.
+
+For every unit increase in ExterQualGd, Sale Price decrease by 71529.493 units. If ExterQualGd is 0, Sale Orice would be 40763.573.
+
+Model in HW 7 is a better fitting model since it has higher r.squared and adj.r.squared.
+
+
+### Exercise 3 - AB Testing (5 points)
+
+Download the ab_test_data.csv file from Canvas. This file contains two columns: version and conversion. Each row is a visitor to a webpage. The version column tells us which version of the webpage the visitor saw, and the conversion column is a binary value and equals 1 if the visitor converted (0 otherwise).
+
+We want to perform an AB test on this data to see if the conversion rates are different for the two versions of the webpage.
+
+__Answer these questions:__
+
+What proportion of visitors converted for each version of the webpage?
+Perform the AB test in R. What is the p-value for the AB test (hypothesis test of proportions)?
+
+```{r}
+ab_test_data = read.csv("ab_test_data.csv")
+
+ab_test_data %>%
+  group_by(version,conversion) %>%
+  summarise(n = n())%>%
+  mutate(freq = n / 4000)
+
+
+true_a <- .05
+true_b <- .05
+n_a <- 2000
+n_b <- 2000
+# this part will simulate how many conversions there are
+# for our 2000 visitors, when we know the true conversion rates
+# n = 1 because we only want one sample conversion rate
+set.seed(10)
+samp_a <- rbinom(n = 1, size = n_a, prob = true_a)
+samp_b <- rbinom(n = 1, size = n_b, prob = true_b)
+
+two_prop_test <- prop.test(c(samp_a, samp_b), c(2000, 2000))
+two_prop_test$p.value
+
+```
+2% of visitors converted for version A, 5% of visitors converted for version B.
+
+p-value is greater than 0.05 so we fail to reject null hypothesis that two conversion rates are equal. Conversion rates are not significantly different for 2 versions of the web page.
+
